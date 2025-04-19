@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Note>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📝 My Notes</h2>
+    <a asp-action="Create" class="btn btn-primary">➕ New Note</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You don't have any notes yet. Click "New Note" to add your first one!
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text text-muted">Oluşturma Tarihi: @item.CreatedAt.ToShortDateString()</p>
+                        <p class="card-text">
+                            @(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">✏️ Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">🔍 Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">🗑️ Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
