@@ -1,0 +1,29 @@
+﻿@model List<ToDoApp.Models.Note>
+@{
+    ViewData["Title"] = "Kullanıcının Notları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>📓 @ViewBag.UserName kullanıcısının notları</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Bu kullanıcıya ait hiç not yok.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var note in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@note.Title</h5>
+                        <p class="card-text">@note.Content</p>
+                        <p class="text-muted">Tarih: @note.CreatedAt.ToShortDateString()</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -2,6 +2,8 @@ using ToDoApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ToDoApp.Models;
+using ToDoApp.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddRazorPages();
+
+// Email sender servisi
+builder.Services.AddTransient<IEmailSender, NullEmailSender>();
 
 var app = builder.Build();
 

@@ -28,6 +28,7 @@
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Sil</button>
                     </form>
+                    <a asp-action="UserNotes" asp-route-id="@user.Id" target="_blank" class="btn btn-sm btn-outline-primary ms-2">📓 Notlar</a>
                 </td>
             </tr>
         }

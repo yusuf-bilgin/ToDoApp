@@ -72,7 +72,7 @@ namespace ToDoApp.Controllers
             }
             return View(note);
         }
-
+        
         // GET: Notes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

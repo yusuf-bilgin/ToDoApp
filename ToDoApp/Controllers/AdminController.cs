@@ -44,4 +44,18 @@ public class AdminController : Controller
 
         return RedirectToAction("Index");
     }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UserNotes(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound();
+
+        var notes = await _context.Notes
+            .Where(n => n.UserId == user.Id)
+            .ToListAsync();
+
+        ViewBag.UserName = user.UserName;
+        return View(notes);
+    }
 }
