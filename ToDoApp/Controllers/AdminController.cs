@@ -19,10 +19,23 @@ public class AdminController : Controller
         _context = context;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var users = _userManager.Users.ToList();
-        return View(users);
+        var users = await _userManager.Users.ToListAsync(); //Önce kullanıcıları çekiyoruz
+        var userList = new List<UserViewModel>(); //Sonra her kullanıcı için UserViewModel oluşturuyoruz
+
+        foreach (var user in users)
+        {
+            userList.Add(new UserViewModel
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                IsAdmin = await _userManager.IsInRoleAsync(user, "Admin")
+            });
+        }
+        return View(userList); // Listeyi View'a gönderiyoruz
     }
 
     [HttpPost]
@@ -58,4 +71,29 @@ public class AdminController : Controller
         ViewBag.UserName = user.UserName;
         return View(notes);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MakeAdmin(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user != null && !await _userManager.IsInRoleAsync(user, "Admin"))
+        {
+            await _userManager.AddToRoleAsync(user, "Admin");
+        }
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveAdmin(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+        {
+            await _userManager.RemoveFromRoleAsync(user, "Admin");
+        }
+        return RedirectToAction("Index");
+    }
+
 }
