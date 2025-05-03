@@ -5,36 +5,101 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<!-- Popup için konum -->
+<div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1100;">
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="toast align-items-center border-2 show fade-out-toast" role="alert" aria-live="assertive" aria-atomic="true" id="warningToast">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @TempData["WarningMessage"]
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+</div>
 
-<h4>Note</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Başlık -->
+            <div class="text-center mb-4">
+                <h1 class="display-5 text-primary fw-bold">✏️ Notu Düzenle</h1>
+                <p class="lead text-muted">Not üzerinde değişiklik yapabilirsiniz</p>
             </div>
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
-                <span asp-validation-for="Content" class="text-danger"></span>
+
+            <!-- Edit Form Kartı -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Başlık</label>
+                            <input asp-for="Title" class="form-control form-control-lg" placeholder="Not başlığını güncelle..." />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">İçerik</label>
+                            <textarea asp-for="Content" class="form-control" rows="5" placeholder="Not içeriğini güncelle..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-save"></i> Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <!-- Geri Dön Linki -->
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="btn btn-link text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Listeye Geri Dön
+                </a>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastEl = document.getElementById('warningToast');
+            if (toastEl) {
+                // Animasyon bittikten sonra toast'ı tamamen kaldır
+                toastEl.addEventListener('animationend', function() {
+                    var bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+                    bsToast.hide();
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .fade-out-toast {
+            animation: fadeOut 1.5s ease-in-out forwards;
+            animation-delay: 1.5s; /* Mesaj 1.5 saniye gösterildikten sonra kaybolmaya başlar */
+        }
+
+        @@keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
 }

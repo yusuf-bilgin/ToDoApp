@@ -1,43 +1,94 @@
 ﻿@model IEnumerable<Note>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📝 My Notes</h2>
-    <a asp-action="Create" class="btn btn-primary">➕ New Note</a>
+<div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1100;">
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="toast align-items-center alert-success border-2 show fade-out-toast" role="alert" aria-live="assertive" aria-atomic="true" id="warningToast">
+			<div class="d-flex">
+				<div class="toast-body">
+					@TempData["SuccessMessage"]
+				</div>
+				<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+		</div>
+	}
 </div>
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h2>📝 My Notes</h2>
+	<a asp-action="Create" class="btn btn-primary">➕ Not Ekle</a>
+</div>
+
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        You don't have any notes yet. Click "New Note" to add your first one!
-    </div>
+	<div class="alert alert-info">
+		You don't have any notes yet. Click "New Note" to add your first one!
+	</div>
 }
 else
 {
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var item in Model)
-        {
-            <div class="col">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Title</h5>
-                        <p class="card-text text-muted">Oluşturma Tarihi: @item.CreatedAt.ToShortDateString()</p>
-                        <p class="card-text">
-                            @(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)
-                        </p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">✏️ Edit</a>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">🔍 Details</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">🗑️ Delete</a>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+		@foreach (var item in Model)
+		{
+			<div class="col">
+				<div class="card shadow-sm h-100">
+					<div class="card-body">
+						<h5 class="card-title">@item.Title</h5>
+						<p class="card-text text-muted">Oluşturma Tarihi: @item.CreatedAt.ToShortDateString()</p>
+						<p class="card-text">
+							@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)
+						</p>
+					</div>
+					<div class="card-footer d-flex justify-content-between">
+						<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">✏️ Edit</a>
+						<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">🔍 Details</a>
+						<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">🗑️ Delete</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
 }
 
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var toastEl = document.getElementById('warningToast');
+			if (toastEl) {
+				// Animasyon bittikten sonra toast'ı tamamen kaldır
+				toastEl.addEventListener('animationend', function() {
+					var bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+					bsToast.hide();
+				});
+			}
+		});
+	</script>
+
+	<style>
+		.fade-out-toast {
+			animation: fadeOut 1.5s ease-in-out forwards;
+			animation-delay: 1.5s; /* Mesaj 1.5 saniye gösterildikten sonra kaybolmaya başlar */
+		}
+
+		@@keyframes fadeOut {
+			from {
+				opacity: 1;
+			}
+
+			to {
+				opacity: 0;
+			}
+		}
+	</style>
+}

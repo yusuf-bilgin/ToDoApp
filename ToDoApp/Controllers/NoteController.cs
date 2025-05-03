@@ -28,7 +28,7 @@ namespace ToDoApp.Controllers
         {
             // Buradaki yapı ile kullanıcıya özel sayfa getiriyoruz
             var userId = _userManager.GetUserId(User);
-            var notes = await _context.Notes            //DbSet<Note>'a erişim
+            var notes = await _context.Notes          //DbSet<Note>'a erişim
                 .Where(n => n.UserId == userId)
                 .ToListAsync();
 
@@ -56,7 +56,6 @@ namespace ToDoApp.Controllers
         }
 
         // POST: Notes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Content")] Note note)
@@ -72,7 +71,7 @@ namespace ToDoApp.Controllers
             }
             return View(note);
         }
-        
+
         // GET: Notes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -85,35 +84,42 @@ namespace ToDoApp.Controllers
         }
 
         // POST: Notes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,CreatedAt")] Note note)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,UserId")] Note note)
         {
-            if (id != note.Id)
-            {
-                return NotFound();
-            }
+            var userId = _userManager.GetUserId(User);
+            var existingNote = await _context.Notes.FindAsync(id);
+
+            if (existingNote == null || existingNote.UserId != userId) return NotFound();
+
+            if (id != note.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
+                // 🔥 Değişiklik kontrolü
+                if (existingNote.Title == note.Title && existingNote.Content == note.Content)
+                {
+                    TempData["WarningMessage"] = "⚠️ Herhangi bir değişiklik yapılmadı.";
+                    return View(note); // Sayfada kal
+                }
+
                 try
                 {
-                    _context.Update(note);
+                    // Sadece değiştirilebilir alanları (varsa) güncelle
+                    existingNote.Title = note.Title;
+                    existingNote.Content = note.Content;
+
+                    _context.Update(existingNote);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "✅ Not başarıyla güncellendi!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!NoteExists(note.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!NoteExists(note.Id)) return NotFound();
+                    else throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(note);

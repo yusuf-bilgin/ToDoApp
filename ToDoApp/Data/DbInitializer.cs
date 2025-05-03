@@ -26,7 +26,7 @@ public class DbInitializer
                 EmailConfirmed = true
             };
 
-            var result = await userManager.CreateAsync(adminUser, "Admin123!"); // güçlü şifre
+            var result = await userManager.CreateAsync(adminUser, "Admin123!"); // Şifreleme işlemi
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
